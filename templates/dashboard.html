@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>phish-sim-lab • Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <strong>phish-sim-lab</strong> <span class="muted">• Awareness Toolkit</span>
+    </div>
+    <div class="right">
+      <a class="link" href="{{ url_for('logout') }}">Sair</a>
+    </div>
+  </div>
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts">
+          {% for category, msg in messages %}
+            <div class="alert {{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+      <div class="card">
+        <h2>Criar campanha</h2>
+        <form method="POST" action="{{ url_for('create_campaign') }}">
+          <label>Nome</label>
+          <input name="name" placeholder="Campanha Dezembro 2025" required>
+
+          <label>Descrição</label>
+          <input name="description" placeholder="Treinamento interno - simulação educacional">
+
+          <label>Assunto do email</label>
+          <input name="email_subject" placeholder="Atualização importante: ação necessária" required>
+
+          <label>HTML do email</label>
+          <textarea name="email_html" rows="8" placeholder="<h3>Olá, ...</h3><p>...</p>" required></textarea>
+
+          <button type="submit">Criar</button>
+          <p class="muted small">
+            Você pode <a class="link" href="https://www.w3schools.com/html/" target="_blank" rel="noreferrer">usar HTML simples</a>.
+          </p>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Campanhas</h2>
+        {% if campaigns|length == 0 %}
+          <p class="muted">Nenhuma campanha criada ainda.</p>
+        {% else %}
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Targets</th>
+                <th>Cliques</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in campaigns %}
+              <tr class="{{ 'selected' if selected and selected.id == c.id else '' }}">
+                <td>{{ c.id }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.targets_count }}</td>
+                <td>{{ c.clicks_count }}</td>
+                <td>
+                  <a class="link" href="{{ url_for('dashboard', campaign_id=c.id) }}">abrir</a>
+                  · <a class="link" href="{{ url_for('preview_email', campaign_id=c.id) }}">preview</a>
+                  · <a class="link" href="{{ url_for('export_campaign', campaign_id=c.id) }}">export</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if selected %}
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Campanha #{{ selected.id }} — {{ selected.name }}</h2>
+            <p class="muted">{{ selected.description }}</p>
+            <p><strong>Assunto:</strong> {{ selected.email_subject }}</p>
+          </div>
+          <div class="right">
+            {% if click_rate is not none %}
+              <div class="metric">
+                <div class="metric-title">Click rate</div>
+                <div class="metric-value">{{ "%.1f"|format(click_rate) }}%</div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr/>
+
+        <h3>Importar targets (CSV)</h3>
+        <form method="POST" action="{{ url_for('upload_targets', campaign_id=selected.id) }}" enctype="multipart/form-data">
+          <input type="file" name="targets_csv" accept=".csv" required>
+          <button type="submit">Enviar</button>
+          <p class="muted small">Formato: <code>name,email</code> (coluna <code>name</code> é opcional)</p>
+        </form>
+
+        <hr/>
+
+        <h3>Targets & Links</h3>
+        {% if targets|length == 0 %}
+          <p class="muted">Nenhum target ainda. Faça upload do CSV acima.</p>
+        {% else %}
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Cliques</th>
+                <th>Tracking URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in targets %}
+              <tr>
+                <td>{{ t.name or '-' }}</td>
+                <td>{{ t.email }}</td>
+                <td>{{ t.clicks }}</td>
+                <td class="mono">
+                  {{ base_url }}/t/{{ t.token }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="footer muted small">
+      ⚠️ Uso ético apenas. Treinamento interno e autorizado.
+    </div>
+  </div>
+</body>
+</html>

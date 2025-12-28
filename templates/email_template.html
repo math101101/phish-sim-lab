@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Preview • Campanha {{ campaign.id }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Preview do Email</h2>
+      <p class="muted">
+        Assunto: <strong>{{ campaign.email_subject }}</strong>
+      </p>
+      <hr/>
+      <div class="email-preview">
+        {{ campaign.email_html | safe }}
+      </div>
+      <hr/>
+      <p class="muted small">
+        Observação: os links de tracking são gerados por target e aparecem no Dashboard após upload do CSV.
+      </p>
+      <a class="link" href="{{ url_for('dashboard', campaign_id=campaign.id) }}">← Voltar</a>
+    </div>
+  </div>
+</body>
+</html>

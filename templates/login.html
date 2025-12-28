@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>phish-sim-lab • Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>phish-sim-lab</h1>
+    <p class="muted">Painel administrativo (uso educacional).</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts">
+          {% for category, msg in messages %}
+            <div class="alert {{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form class="card" method="POST">
+      <label>Usuário</label>
+      <input name="username" placeholder="admin" required>
+
+      <label>Senha</label>
+      <input name="password" type="password" placeholder="••••••••" required>
+
+      <button type="submit">Entrar</button>
+
+      <p class="muted small">
+        Dica: defina <code>PHISHSIM_ADMIN_USER</code> e <code>PHISHSIM_ADMIN_PASS</code> como variáveis de ambiente.
+      </p>
+    </form>
+  </div>
+</body>
+</html>
